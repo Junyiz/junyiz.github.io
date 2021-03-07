@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Query Sting Parser</title>
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+.qs {
+  width: 100%;
+  height: 30vh;
+}
+.rs {
+  width: 100%;
+  height: 80vh;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <textarea class="qs" v-model="qs"></textarea>
+  <textarea class="rs" v-model="rs"></textarea>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.12/vue.min.js"></script>
+<script>
+const isJsonString = (s) => {
+  try {
+    JSON.parse(s)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+const isString = (s) => {
+  return ({}).toString.call(s) === '[object String]'
+}
+
+const parse = (qs) => {
+  const rs = {}
+
+  if (qs.includes('?')) {
+    let [key, val] = qs.split('?')
+    rs[key + '?'] = parse(val)
+  } else {
+    qs.split('&').map(it => {
+      let [key, val] = it.split('=')
+
+      if (!val) val = ''
+
+      try {
+        val = decodeURIComponent(val)
+      } catch(e) {
+        // nothing
+      }
+
+      if (isJsonString(val)) {
+        try {
+          val = JSON.parse(val)
+        } catch(e) {
+          // nothing
+        }
+      }
+
+      if (isString(val) && val.includes('?')) {
+        rs[key] = parse(val)
+      } else {
+        rs[key] = val || ''
+      }
+    })
+  }
+  return rs
+}
+new Vue({
+  el: '#app',
+  data() {
+    return {
+      qs: ''
+    }
+  },
+  computed: {
+    rs() {
+      return this.qs ? JSON.stringify(parse(this.qs), null, '  ') : ''
+    }
+  }
+})
+</script>
+</body>
+</html>
