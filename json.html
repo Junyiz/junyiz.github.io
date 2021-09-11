@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>JSON Parser</title>
 <style>
-body {
+body, pre {
   margin: 0;
 }
 .column {
@@ -20,7 +21,6 @@ body {
 }
 .column-right {
   height: 100vh;
-  background-color: #eee;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -68,6 +68,22 @@ textarea {
 textarea:focus {
   outline: none;
 }
+.rs {
+  padding: 2px;
+  width: 100%;
+  height: 100%;
+  background-color: #efefef;
+}
+.highlight {
+  position: fixed;
+  top: 5px;
+  right: 5px;
+  width: 70px;
+  cursor: pointer;
+  text-align: center;
+  border: 1px dashed #d8d8d8;
+  background-color: #fff;
+}
 </style>
 </head>
 <body>
@@ -81,9 +97,49 @@ textarea:focus {
     </div>                                            
   </div>
   <div class="column-right">
-    <textarea class="rs"></textarea>
+    <div class="rs"></div>
   </div>
 </div>
+<a class="highlight">highlight</a>
+<script>
+// https://github.com/luyilin/json-format-highlight
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.jsonFormatHighlight = factory());
+}(this, (function () {
+  'use strict';
+  var defaultColors = {
+    keyColor: 'dimgray',
+    numberColor: 'lightskyblue',
+    stringColor: 'lightcoral',
+    trueColor: 'lightseagreen',
+    falseColor: '#f66578',
+    nullColor: 'cornflowerblue'
+  };
+
+  function index (json, colorOptions) {
+    if ( colorOptions === void 0 ) colorOptions = {};
+
+    if (!json) { return; }
+    if (typeof json !== 'string') {
+      json = JSON.stringify(json, null, 2);
+    }
+    var colors = Object.assign({}, defaultColors, colorOptions);
+    json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?)/g, function (match) {
+      var color = colors.numberColor;
+      if (/^"/.test(match)) {
+        color = /:$/.test(match) ? colors.keyColor : colors.stringColor;
+      } else {
+        color = /true/.test(match) ? colors.trueColor : /false/.test(match) ? colors.falseColor : /null/.test(match) ? colors.nullColor : color;
+      }
+      return ("<span style=\"color: " + color + "\">" + match + "</span>");
+    });
+  }
+  return index;
+})));
+</script>
 <script>
 const safeParse = (s) => {
   try {
@@ -111,11 +167,34 @@ function parse(s) {
 
 const qs = document.querySelector('.qs')
 const rs = document.querySelector('.rs')
-const line =document.querySelector('.line') 
+const line = document.querySelector('.line') 
+const highlight = document.querySelector('.highlight')
+let flag = false
+
+function show(value) {
+  let s = stringify(safeParse(value), replacer, '  ')
+  if (flag) {
+    s = jsonFormatHighlight(s)
+  }
+  rs.innerHTML = '<pre>\n' + s + '\n</pre>'
+}
+
+highlight.addEventListener('click', () => {
+  flag = !flag
+  show(qs.value)
+})
 
 qs.addEventListener('input', (ev) => {
-  rs.value = stringify(safeParse(ev.currentTarget.value), replacer, '  ')
+  const value = ev.currentTarget.value
+  show(value)
+  localStorage.setItem('JSONSTR', value)
 })
+
+const jsonStr = localStorage.getItem('JSONSTR')
+if (jsonStr) {
+  qs.value = jsonStr
+  show(jsonStr)
+}
 </script>
 </body>
 </html>
