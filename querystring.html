@@ -6,41 +6,84 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Query Sting Parser</title>
 <style>
-body {
-  margin: 0;
-}
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  width: 100%;
-  display: flex;
-}
-.qs {
-  flex: 1;
-  height: 100vh;
-}
-.rs {
-  flex: 2.5;
-  height: 100vh;
-  margin-left: -1px;
-}
-textarea {
-  border-radius: 0;
-}
-textarea:focus {
-  outline: none;
-}
-</style>
-</head>
-<body>
-<div id="app">
-  <textarea class="qs" v-model="qs"></textarea>
-  <textarea class="rs" v-model="rs"></textarea>
-</div>
-<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.12/vue.min.js"></script>
+  body {
+    margin: 0;
+  }
+  .column {
+    overflow: hidden;
+  }
+  .column-left {
+    float: left;
+    height: 100vh;
+    background-color: #fff;
+    position: relative;
+  }
+  .column-right {
+    height: 100vh;
+    background-color: #eee;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .resize-save {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    bottom: 0;
+    left: 0;
+    overflow-x: hidden;
+  }
+  .resize-bar {
+    width: 280px;
+    height: inherit;
+    resize: horizontal;
+    cursor: ew-resize;
+    cursor: col-resize;
+    opacity: 0;
+    overflow: scroll;
+  }
+  /* 拖拽线 */
+  .resize-line {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border-right: 2px solid #eaeaea;
+    border-left: 1px solid #cacaca;
+    pointer-events: none;
+  }
+  .resize-bar:hover ~ .resize-line,
+  .resize-bar:active ~ .resize-line {
+    border-left: 1px dashed skyblue;
+  }
+  .resize-bar::-webkit-scrollbar {
+    width: 280px;
+    height: inherit;
+  }
+  textarea {
+    border: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+  textarea:focus {
+    outline: none;
+  }
+  </style>
+  </head>
+  <body>
+    <!-- 纯CSS实现分栏宽度拉伸调整: https://www.zhangxinxu.com/study/201903/css-idea/behavior-stretch.php?aside=0 -->
+  <div class="column">
+    <div class="column-left">
+      <div class="resize-bar"></div>
+      <div class="resize-line"></div>
+      <div class="resize-save">
+        <textarea class="qs"></textarea>
+      </div>                                            
+    </div>
+    <div class="column-right">
+      <textarea class="rs"></textarea>
+    </div>
+  </div>
 <script>
 const isJsonString = (s) => {
   try {
@@ -90,18 +133,10 @@ const parse = (qs) => {
   }
   return rs
 }
-new Vue({
-  el: '#app',
-  data() {
-    return {
-      qs: ''
-    }
-  },
-  computed: {
-    rs() {
-      return this.qs ? JSON.stringify(parse(this.qs), null, '  ') : ''
-    }
-  }
+const qs = document.querySelector('.qs')
+const rs = document.querySelector('.rs')
+qs.addEventListener('input', (ev) => {
+  rs.value = JSON.stringify(parse(ev.currentTarget.value), null, '  ')
 })
 </script>
 </body>
