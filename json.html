@@ -9,82 +9,112 @@
 body {
   margin: 0;
 }
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  width: 100%;
-  display: flex;
+.column {
+  overflow: hidden;
 }
-.qs {
-  flex: 1;
+.column-left {
+  float: left;
   height: 100vh;
+  background-color: #fff;
+  position: relative;
 }
-.rs {
-  flex: 2.5;
+.column-right {
   height: 100vh;
+  background-color: #eee;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.resize-save {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  bottom: 0;
+  left: 0;
+  overflow-x: hidden;
+}
+.resize-bar {
+  width: 280px;
+  height: inherit;
+  resize: horizontal;
+  cursor: ew-resize;
+  cursor: col-resize;
+  opacity: 0;
+  overflow: scroll;
+}
+/* 拖拽线 */
+.resize-line {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 2px solid #eaeaea;
+  border-left: 1px solid #cacaca;
+  pointer-events: none;
+}
+.resize-bar:hover ~ .resize-line,
+.resize-bar:active ~ .resize-line {
+  border-left: 1px dashed skyblue;
+}
+.resize-bar::-webkit-scrollbar {
+  width: 280px;
+  height: inherit;
 }
 textarea {
   border: 0;
+  width: 100%;
+  height: 100%;
   border-radius: 0;
 }
 textarea:focus {
   outline: none;
 }
-textarea:first-child {
-  border-right: 1px solid #bababa;
-}
 </style>
 </head>
 <body>
-<div id="app">
-  <textarea class="qs" v-model="qs"></textarea>
-  <textarea class="rs" v-model="rs"></textarea>
+  <!-- 纯CSS实现分栏宽度拉伸调整: https://www.zhangxinxu.com/study/201903/css-idea/behavior-stretch.php?aside=0 -->
+<div class="column">
+  <div class="column-left">
+    <div class="resize-bar"></div>
+    <div class="resize-line"></div>
+    <div class="resize-save">
+      <textarea class="qs"></textarea>
+    </div>                                            
+  </div>
+  <div class="column-right">
+    <textarea class="rs"></textarea>
+  </div>
 </div>
-<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.12/vue.min.js"></script>
 <script>
-const isJsonString = (s) => {
+const safeParse = (s) => {
   try {
-    JSON.parse(s)
-    return true
-  } catch (e) {
-    return false
-  }
-}
-
-const isString = (s) => {
-  return ({}).toString.call(s) === '[object String]'
-}
-
-const parse = (qs) => {
-  try {
-    return JSON.parse(qs)
+    return JSON.parse(s)
   } catch(e) {
-    return JSON.parse(decodeURIComponent(qs))
+    return JSON.parse(decodeURIComponent(s))
   }
-  return ''
 }
 
-new Vue({
-  el: '#app',
-  data() {
-    return {
-      qs: ''
-    }
-  },
-  computed: {
-    rs() {
-      const replacer = (k, v) => {
-        if (isJsonString(v)) {
-          return parse(v)
-        }
-        return v
-      }
-      return this.qs ? JSON.stringify(parse(this.qs), replacer, '  ') : ''
-    }
+const replacer = (_, v) => {
+  try {
+    return safeParse(v)
+  } catch(e) {
+    return v
   }
+}
+
+function stringify(o, r = replacer, s = '') {
+  return JSON.stringify(o, r, s)
+}
+
+function parse(s) {
+  return JSON.parse(stringify(safeParse(s)))
+}
+
+const qs = document.querySelector('.qs')
+const rs = document.querySelector('.rs')
+const line =document.querySelector('.line') 
+
+qs.addEventListener('input', (ev) => {
+  rs.value = stringify(safeParse(ev.currentTarget.value), replacer, '  ')
 })
 </script>
 </body>
