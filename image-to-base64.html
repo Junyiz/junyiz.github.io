@@ -1,51 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <title>image to base64</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <title>image <-> base64</title>
 <style>
 body {
-    width: 800px;
-    margin: 0 auto;
-    font-family: trebuchet MS, sans-serif;
+  font-family: trebuchet MS, sans-serif;
+  box-sizing: border-box;
 }
-h1 {
-    text-shadow: 0px 1px 0 rgba(255,255,255,1);
+#app {
+  width: 1024px;
+  margin: 0 auto;
 }
-.form {
-    padding: 10px;
-    width: 570px;
-    border: 5px solid #f0f0f0;
-    background-color: #E3E3E3;
-    box-shadow: #B3B3B3 2px 2px 2px;
+.file {
+  width: 1024px;
+  box-sizing: border-box;
+  position: relative;
+  background: #f8f8f8;
+  border: 3px solid #d8d8d8;
+  border-radius: 4px;
+  padding: 4px 12px;
+  overflow: hidden;
+  color: #1E88C7;
+  text-decoration: none;
+  text-indent: 0;
+  line-height: 20px;
+}
+.file input {
+  width: 100%;
+  box-sizing: border-box;
+  position: absolute;
+  font-size: 16px;
+  right: 0;
+  top: 0;
+  opacity: 0;
+}
+.file:hover {
+  color: #004974;
+  text-decoration: none;
 }
 .image {
-    margin: 20px 0;
-    width: 600px;
-    box-shadow: #B3B3B3 2px 2px 2px;
+  margin: 20px 0;
 }
 .image img {
-    max-width: 600px;
+  max-width: 600px;
 }
 textarea {
-    width: 590px;
-    padding: 5px;
-    height: 200px;
-    border: 1px solid #e8e8e8;
-    box-shadow: #B3B3B3 2px 2px 2px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
+  height: calc(100vh - 300px);
+  border: 1px solid #e8e8e8;
+}
+.onepx {
+  margin-top: 50vh;
 }
 .onepx div {
-    font-size: 12px;
-    padding: 10px;
-    border: 1px solid #e4e4e4;
+  padding: 10px;
+  font-size: 12px;
+  border: 1px solid #e4e4e4;
 }
 </style>
 </head>
 <body>
-    <h1>Convert image to base64</h1>
-    <div class="form">
-        <input type="file" id="file" />
+  <div id="app">
+    <h1>Image <-> Base64</h1>
+    <div class="file">
+      <input type="file" id="file" />
+      <span>选择图片</span>
     </div>
     <div class="image" id="image"></div>
     <textarea class="textarea" id="base64"></textarea>
@@ -53,21 +76,25 @@ textarea {
       <h4>1px大小Data/Base64数据的gif透明图片</h4>
       <div>data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==</div>
     </div>
+  </div>
+<script>
+var input = document.getElementById('file')
+var image = document.getElementById('image')
+var base64 = document.getElementById('base64')
+file.addEventListener('change', function() {
+  var file = input.files[0]
+  if(/image\/\w+/.test(file.type)){
+    var reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = function (e) {
+      image.innerHTML = '<img src="' + this.result +'" />'
+      base64.value = this.result
+    }
+  }
+})
+base64.addEventListener('input', function(e) {
+  image.innerHTML = '<img src="' + e.currentTarget.value + '" />'
+})
+</script>
 </body>
 </html>
-
-<script>
-var input = document.getElementById('file');
-file.addEventListener('change', function() {
-    var file = input.files[0];
-    if(/image\/\w+/.test(file.type)){
-        var reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function (e) {
-            document.getElementById('image').innerHTML = '<img src="' + this.result +'" />';
-            document.getElementById('base64').innerHTML = this.result;
-        }
-    }
-});
-</script>
-
