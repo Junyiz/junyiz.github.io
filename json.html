@@ -78,15 +78,21 @@ textarea:focus {
 .rs pre {
   margin-bottom: 10px;
 }
-.highlight {
-  position: fixed;
-  top: 5px;
-  right: 5px;
-  width: 70px;
+.toolbar {
+  padding: 5px 8px;
+}
+.toolbar a {
   cursor: pointer;
   text-align: center;
-  border: 1px dashed #d8d8d8;
-  background-color: #fff;
+  display: inline-block;
+  padding: 5px 15px;
+  border-radius: 5px;
+  margin-right: 10px;
+  font-size: 14px;
+  background-color: #f0f0f0;
+}
+.toolbar a:hover {
+  color: darkorange;
 }
 </style>
 </head>
@@ -101,10 +107,13 @@ textarea:focus {
     </div>                                            
   </div>
   <div class="column-right">
+    <div class="toolbar">
+      <a class="highlight">高亮</a>
+      <a class="copy">复制</a>
+    </div>
     <div class="rs"></div>
   </div>
 </div>
-<a class="highlight">highlight</a>
 <script>
 // https://github.com/luyilin/json-format-highlight
 (function (global, factory) {
@@ -173,6 +182,7 @@ const qs = document.querySelector('.qs')
 const rs = document.querySelector('.rs')
 const line = document.querySelector('.line') 
 const highlight = document.querySelector('.highlight')
+const copy = document.querySelector('.copy')
 let flag = false
 
 function show(value) {
@@ -199,6 +209,12 @@ if (jsonStr) {
   qs.value = jsonStr
   show(jsonStr)
 }
+
+copy.addEventListener('click', () => {
+  const json = localStorage.getItem('JSONSTR')
+  const text = stringify(safeParse(json), replacer, '  ')
+  navigator.clipboard.writeText(text)
+})
 </script>
 </body>
 </html>
