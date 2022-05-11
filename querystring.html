@@ -103,7 +103,12 @@ const parse = (qs) => {
 
   if (qs.includes('?')) {
     let [key, val] = qs.split('?')
-    rs[key + '?'] = parse(val)
+    rs['url'] = key
+    if (val.includes('#')) {
+      rs['search'] = parse(val.split('#')[0])
+    } else {
+      rs['search'] = parse(val)
+    }
   } else {
     qs.split('&').map(it => {
       let [key, val] = it.split('=')
