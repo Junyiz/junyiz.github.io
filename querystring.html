@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,10 +103,15 @@ const parse = (qs) => {
   const rs = {}
 
   if (qs.includes('?')) {
-    let [key, val] = qs.split('?')
+    let index = qs.indexOf('?')
+    let [key, val] = [qs.substring(0, index), qs.substring(index + 1)]
+    console.log('key', key)
+    console.log('val', val)
     rs['url'] = key
     if (val.includes('#')) {
       let [search, hash] = val.split('#')
+      console.log('search', search )
+      console.log('hash', hash)
       rs['search'] = parse(search)
       rs['hash'] = parse(hash)
     } else {
@@ -143,8 +149,16 @@ const parse = (qs) => {
 const qs = document.querySelector('.qs')
 const rs = document.querySelector('.rs')
 qs.addEventListener('input', (ev) => {
-  rs.value = JSON.stringify(parse(ev.currentTarget.value), null, '  ')
+  const value = ev.currentTarget.value
+  rs.value = JSON.stringify(parse(value), null, '  ')
+  localStorage.setItem('URLSTR', value)
 })
+
+const urlStr = localStorage.getItem('URLSTR')
+if (urlStr) {
+  qs.value = urlStr
+  rs.value = JSON.stringify(parse(urlStr), null, '  ')
+}
 </script>
 </body>
 </html>
