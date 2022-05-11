@@ -105,7 +105,9 @@ const parse = (qs) => {
     let [key, val] = qs.split('?')
     rs['url'] = key
     if (val.includes('#')) {
-      rs['search'] = parse(val.split('#')[0])
+      let [search, hash] = val.split('#')
+      rs['search'] = parse(search)
+      rs['hash'] = parse(hash)
     } else {
       rs['search'] = parse(val)
     }
