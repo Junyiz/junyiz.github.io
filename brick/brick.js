@@ -13,7 +13,7 @@
     }
 
     function impact() {
-         for (var i = 0; i < target.length; i++) {
+         for (var i = 0; i < bricks.length; i++) {
 
              var curStyle = getComputedStyle(bricks[i]), 
                  t_left = parseInt(bricks[i].style.left),
