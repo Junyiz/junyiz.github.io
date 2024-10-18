@@ -46,7 +46,7 @@
   <script src="/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
   <script src="/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
-    (function() {
+(function() {
   var RFC4648 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
   var RFC4648_HEX = '0123456789ABCDEFGHIJKLMNOPQRSTUV'
   var CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
@@ -103,8 +103,9 @@
     return output.buffer
   }
 })()
-  </script>
+</script>
   <script>
+    $('#key').val(localStorage.getItem('key') || '')
     $('#time').html(new Date().toLocaleString())
     
     setInterval(() => {
@@ -129,6 +130,7 @@
     function updateCode() {
       const T = Math.floor(Date.now() / 1000 / 30)
       const key = $('#key').val()
+      localStorage.setItem('key', key)
       // 用户密钥
       const K = arrayToBinary(Array.from(new Uint8Array(base32Decode(key.toUpperCase(), 'RFC4648'))))
 
